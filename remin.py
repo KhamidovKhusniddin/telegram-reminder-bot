@@ -7,9 +7,74 @@ import threading
 import time
 from dotenv import load_dotenv
 
+# ============= REMINDER SCHEDULER =============
+def send_admin_stats():
+    """Har soatda admin'ga statistika yuborish"""
+    print("📊 Admin stats scheduler ishga tushdi...")
+
+    while True:
+        try:
+            if ADMIN_TELEGRAM_ID == 0:
+                time.sleep(3600)
+                continue
+
+            users = load_users()
+            tasks = load_tasks()
+
+            total_users = len(users)
+            total_tasks = sum(len(t) for t in tasks.values())
+            completed = sum(len([x for x in t if x.get("done")]) for t in tasks.values())
+            pending = total_tasks - completed
+
+            message = (
+                f"📊 **BOT STATISTIKA**\n\n"
+                f"👥 Foydalanuvchilar: {total_users}\n"
+                f"📋 Jami tasklar: {total_tasks}\n"
+                f"✅ Tugallangan: {completed}\n"
+                f"⏳ Qolgan: {pending}\n"
+                f"📈 Foiz: {int((completed / total_tasks * 100) if total_tasks > 0 else 0)}%\n\n"
+                f"🕐 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+            )
+
+            # Foydalanuvchilar ro'yxati
+            if total_users > 0:
+                message += "\n👥 **FOYDALANUVCHILAR:**\n"
+                for user_id, user in list(users.items())[:10]:  # Birinchi 10 ta
+                    user_tasks = len(tasks.get(user_id, []))
+                    username = user.get("username", "Noma'lum")
+                    message += f"• @{username} - {user_tasks} task\n"
+
+                if total_users > 10:
+                    message += f"\n... va {total_users - 10} ta boshqa\n"
+
+            try:
+                bot.send_message(ADMIN_TELEGRAM_ID, message)
+                print(f"✅ Admin statistika yuborildi: {total_users} users, {total_tasks} tasks")
+            except Exception as e:
+                print(f"Admin'ga yuborish xatosi: {e}")
+
+            # Har 1 soatda
+            time.sleep(3600)
+        except Exception as e:
+            print(f"Admin stats xatosi: {e}")
+            time.sleep(3600)
+
+
+def reminder_scheduler(): import telebot
+
+
+from telebot import types
+import json
+import os
+from datetime import datetime
+import threading
+import time
+from dotenv import load_dotenv
+
 # .env fayldan token oqish
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN", "YOUR_BOT_TOKEN_HERE")
+ADMIN_TELEGRAM_ID = int(os.getenv("ADMIN_TELEGRAM_ID", "0"))  # .env'dan oqish
 
 bot = telebot.TeleBot(BOT_TOKEN)
 TASKS_FILE = "tasks.json"
@@ -485,9 +550,7 @@ def skip_reminder(call):
     except Exception as e:
         print(f"Skip xatosi: {e}")
 
-
-# ============= REMINDER SCHEDULER =============
-def reminder_scheduler():
+    # ============= REMINDER SCHEDULER =============
     """Vaqtda reminder yuborish"""
     print("🚀 Scheduler ishga tushdi...")
     last_sent = {}
@@ -589,6 +652,11 @@ if __name__ == "__main__":
     print("🤖 Bot ishga tushdi!")
     print("=" * 50)
 
+    # Admin stats thread
+    admin_thread = threading.Thread(target=send_admin_stats, daemon=True)
+    admin_thread.start()
+
+    # Scheduler thread
     scheduler_thread = threading.Thread(target=reminder_scheduler, daemon=True)
     scheduler_thread.start()
 
