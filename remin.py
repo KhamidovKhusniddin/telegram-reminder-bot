@@ -7,7 +7,6 @@ import threading
 import time
 from dotenv import load_dotenv
 
-
 # ============= REMINDER SCHEDULER =============
 def send_admin_stats():
     """Har soatda admin'ga statistika yuborish"""
@@ -15,7 +14,7 @@ def send_admin_stats():
 
     while True:
         try:
-            if ADMIN_TELEGRAM_ID == 0:
+            if ADMIN_ID == 0:
                 time.sleep(3600)
                 continue
 
@@ -62,7 +61,7 @@ def send_admin_stats():
             )
 
             try:
-                bot.send_message(ADMIN_TELEGRAM_ID, message)
+                bot.send_message(ADMIN_ID, message)
                 print(f"✅ Admin stats: {total_users} users")
             except Exception as e:
                 print(f"Admin'ga yuborish xatosi: {e}")
@@ -89,7 +88,7 @@ import random
 # .env fayldan token oqish
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN", "YOUR_BOT_TOKEN_HERE")
-ADMIN_TELEGRAM_ID = int(os.getenv("ADMIN_TELEGRAM_ID", "0"))  # .env'dan oqish
+ADMIN_ID = int(os.getenv("ADMIN_ID", "0"))  # .env'dan oqish
 
 bot = telebot.TeleBot(BOT_TOKEN)
 TASKS_FILE = "tasks.json"
@@ -586,7 +585,7 @@ def skip_reminder(call):
 @bot.message_handler(commands=['admin'])
 def admin_command(message):
     """Admin panel"""
-    if message.from_user.id != ADMIN_TELEGRAM_ID:
+    if message.from_user.id != ADMIN_ID:
         bot.send_message(message.chat.id, "❌ Siz admin emasiz!")
         return
 
@@ -612,7 +611,7 @@ def admin_command(message):
 @bot.callback_query_handler(func=lambda call: call.data == "admin_users")
 def admin_users(call):
     """Foydalanuvchilar ro'yxati"""
-    if call.from_user.id != ADMIN_TELEGRAM_ID:
+    if call.from_user.id != ADMIN_ID:
         bot.answer_callback_query(call.id, "❌ Admin emasiz!", show_alert=True)
         return
 
@@ -638,7 +637,7 @@ def admin_users(call):
 @bot.callback_query_handler(func=lambda call: call.data == "admin_stats")
 def admin_stats(call):
     """Statistika"""
-    if call.from_user.id != ADMIN_TELEGRAM_ID:
+    if call.from_user.id != ADMIN_ID:
         bot.answer_callback_query(call.id, "❌ Admin emasiz!", show_alert=True)
         return
 
@@ -668,7 +667,7 @@ def admin_stats(call):
 @bot.callback_query_handler(func=lambda call: call.data == "admin_all_tasks")
 def admin_all_tasks(call):
     """Barcha tasklar"""
-    if call.from_user.id != ADMIN_TELEGRAM_ID:
+    if call.from_user.id != ADMIN_ID:
         bot.answer_callback_query(call.id, "❌ Admin emasiz!", show_alert=True)
         return
 
@@ -698,7 +697,7 @@ def admin_all_tasks(call):
 @bot.callback_query_handler(func=lambda call: call.data == "admin_broadcast")
 def admin_broadcast(call):
     """Broadcast qilish"""
-    if call.from_user.id != ADMIN_TELEGRAM_ID:
+    if call.from_user.id != ADMIN_ID:
         bot.answer_callback_query(call.id, "❌ Admin emasiz!", show_alert=True)
         return
 
@@ -708,7 +707,7 @@ def admin_broadcast(call):
 
 def send_broadcast(message):
     """Broadcast xabar yuborish"""
-    if message.from_user.id != ADMIN_TELEGRAM_ID:
+    if message.from_user.id != ADMIN_ID:
         return
 
     broadcast_text = message.text
@@ -738,7 +737,7 @@ def send_broadcast(message):
 @bot.callback_query_handler(func=lambda call: call.data == "admin_delete_user")
 def admin_delete_user(call):
     """User o'chirish"""
-    if call.from_user.id != ADMIN_TELEGRAM_ID:
+    if call.from_user.id != ADMIN_ID:
         bot.answer_callback_query(call.id, "❌ Admin emasiz!", show_alert=True)
         return
 
@@ -748,7 +747,7 @@ def admin_delete_user(call):
 
 def delete_user_by_id(message):
     """User ID bo'yicha o'chirish"""
-    if message.from_user.id != ADMIN_TELEGRAM_ID:
+    if message.from_user.id != ADMIN_ID:
         return
 
     try:
@@ -774,7 +773,7 @@ def delete_user_by_id(message):
 @bot.callback_query_handler(func=lambda call: call.data == "admin_analytics")
 def admin_analytics(call):
     """Analitika"""
-    if call.from_user.id != ADMIN_TELEGRAM_ID:
+    if call.from_user.id != ADMIN_ID:
         bot.answer_callback_query(call.id, "❌ Admin emasiz!", show_alert=True)
         return
 
