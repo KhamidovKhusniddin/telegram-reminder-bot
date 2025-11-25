@@ -213,7 +213,7 @@ def show_main_menu(chat_id):
     markup.add(
         types.InlineKeyboardButton("➕ Task qo'sh", callback_data="add"),
         types.InlineKeyboardButton("📋 Tasklar", callback_data="list"),
-        types.InlineKeyboardButton("💡 Tavsiya", callback_data="tip"),
+        types.InlineKeyboardButton("💡 Motivation", callback_data="tip"),
         types.InlineKeyboardButton("🗑 O'chir", callback_data="delete")
     )
 
